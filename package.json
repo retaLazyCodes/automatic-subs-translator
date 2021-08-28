@@ -4,6 +4,7 @@
   "description": "Web scraper that extract subs of mkv videos and translate them.",
   "main": "index.js",
   "dependencies": {
+    "file-regex": "^3.1.0",
     "puppeteer": "10.2.0"
   },
   "devDependencies": {},

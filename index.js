@@ -1,21 +1,31 @@
 const puppeteer = require('puppeteer')
 const path = require('path')
 const child_process = require('child_process')
+const { listFiles } = require('./utils/findFiles')
+const { replaceAll } = require('./utils/customReplace')
 
-const cmd = 'mkvextract HNK_001_Remastered_Edition.mkv chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:MySubs.srt"'
 const url = 'https://translatesubtitles.com/subtitlestranslator/index.php'
-const filePath = path.join(__dirname, '/MySubs.srt')
-console.log(filePath);
 
 
-getSubs = async () => {
+getCommands = async (files) => {
+    let commands = []
+    files.forEach(element => {
+        const filename = replaceAll(element.file, ' ', '\\ ')
+        const cmd = `mkvextract ${filename} chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${element.file.replace('mkv', 'srt')}"`
+        commands.push(cmd)
+    });
+    return commands
+}
+
+extractSubs = async () => {
     try {
-        const process = await child_process.exec(cmd)
-
-        process.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
+        const files = await listFiles()
+        const commands = await getCommands(files)
+        commands.map((cmd) => {
+            console.log(cmd)
+            child_process.execSync(cmd)
         })
-        return true
+        return files
 
     } catch (e) {
         console.log(e)
@@ -23,7 +33,8 @@ getSubs = async () => {
     return false
 }
 
-translateSubs = async () => {
+translateSubs = async (files) => {
+
     console.log('Lanzamos navegador!');
     const browser = await puppeteer.launch({ headless: false })
 
@@ -34,8 +45,14 @@ translateSubs = async () => {
 
     await waitSelector('input[type="file"]')
     const elementHandle = await page.$('input[type=file]')
-    await elementHandle.uploadFile(filePath)
 
+    let filesToUpload = []
+    files.forEach(element => {
+        let filePath = path.join(element.dir, element.file.replace('mkv', 'srt'))
+        filesToUpload.push(filePath)
+    })
+
+    await elementHandle.uploadFile(...filesToUpload)
 
     await setTimeout(() => {
         page.click('button[id=next-button]')
@@ -71,11 +88,11 @@ translateSubs = async () => {
 
 async function main() {
 
-    const processSuccess = await getSubs();
-    console.log(processSuccess)
+    const files = await extractSubs();
+    console.log(files)
 
-    if (processSuccess) {
-        await translateSubs()
+    if (files) {
+        await translateSubs(files)
     }
 }
 
