@@ -10,8 +10,14 @@ const url = 'https://translatesubtitles.com/subtitlestranslator/index.php'
 getCommands = async (files) => {
     let commands = []
     files.forEach(element => {
-        const filename = replaceAll(element.file, ' ', '\\ ')
-        const cmd = `mkvextract ${filename} chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${element.file.replace('mkv', 'srt')}"`
+        const { file } = element
+        let cmd = ''
+        if (process.platform === 'win32') {
+            cmd = `mkvextract "${file}" chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${file.replace('mkv', 'srt')}"`
+        } else {
+            const filename = replaceAll(file, ' ', '\\ ')
+            cmd = `mkvextract ${filename} chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${file.replace('mkv', 'srt')}"`
+        }
         commands.push(cmd)
     });
     return commands
@@ -56,7 +62,7 @@ translateSubs = async (files) => {
 
     await setTimeout(() => {
         page.click('button[id=next-button]')
-    }, 1000)
+    }, 2000)
     await navigationPromise
 
     await waitSelector('select[class=goog-te-combo]')
