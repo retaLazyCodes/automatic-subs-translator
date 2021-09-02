@@ -1,6 +1,23 @@
 const puppeteer = require('puppeteer')
 const path = require('path')
 const child_process = require('child_process')
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
+const argv = yargs(hideBin(process.argv))
+    .option('track', {
+        alias: 't',
+        default: 2,
+        type: 'number',
+        description: 'select the track id to extract subs'
+    })
+    .check((argv, options) => {
+        if (isNaN(argv.track)) {
+            argv.track = 2
+        }
+        return true
+    })
+    .argv
+
 const { listFiles } = require('./utils/findFiles')
 const { replaceAll } = require('./utils/customReplace')
 
@@ -13,10 +30,10 @@ getCommands = async (files) => {
         const { file } = element
         let cmd = ''
         if (process.platform === 'win32') {
-            cmd = `mkvextract "${file}" chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${file.replace('mkv', 'srt')}"`
+            cmd = `mkvextract "${file}" chapters --simple "My Chapters.txt" tracks -c MS-ANSI "${argv.track}:${file.replace('mkv', 'srt')}"`
         } else {
             const filename = replaceAll(file, ' ', '\\ ')
-            cmd = `mkvextract ${filename} chapters --simple "My Chapters.txt" tracks -c MS-ANSI "4:${file.replace('mkv', 'srt')}"`
+            cmd = `mkvextract ${filename} chapters --simple "My Chapters.txt" tracks -c MS-ANSI "${argv.track}:${file.replace('mkv', 'srt')}"`
         }
         commands.push(cmd)
     });
@@ -72,7 +89,7 @@ translateSubs = async (files) => {
 
     await setTimeout(() => {
         page.click('button[id=translate-button]')
-    }, 2000)
+    }, 3000)
 
 
     await waitSelector('#page-top > div.dialog.skiptranslate')
