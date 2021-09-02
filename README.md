@@ -31,8 +31,10 @@ Note: You have to have [MKVToolNix](https://mkvtoolnix.download/downloads.html) 
 5. Now run ```npm install``` to install all dependencies
 6. Finally run ```node index.js``` to run the app
 
-Usage examples:
+## Usage examples:
+
 ```$ node index.js --track=4```
+
 *This takes the track with the id=4 (by default 2) of the mkv video and extract it as srt file*
 
 
