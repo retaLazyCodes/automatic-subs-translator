@@ -5,7 +5,6 @@ An automatic subs translator.
 ## Table of contents
 
 - [General info](#general-info)
-- [Screenshots](#screenshots)
 - [Technologies](#technologies)
 - [How to run](#how-to-run)
 - [Contact](#contact)
@@ -36,6 +35,8 @@ Note: You have to have [MKVToolNix](https://mkvtoolnix.download/downloads.html) 
 ```$ node index.js --track=4```
 
 *This takes the track with the id=4 (by default 2) of the mkv video and extract it as srt file*
+
+Note: *The track with the id=0 corresponds to video track*
 
 
 ## Contact
